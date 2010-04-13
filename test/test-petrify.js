@@ -43,3 +43,127 @@ exports.testReadData = function(test){
         test.done();
     });
 };
+
+exports.testLoadViewsMissingPath = function(test){
+    petrify.loadViews(__dirname + '/fixtures/blah', function(err, views){
+        test.ok(err instanceof Error);
+        test.done();
+    });
+};
+
+exports.testLoadViews = function(test){
+    petrify.loadViews(__dirname + '/fixtures/views', function(err, views){
+        test.same(views, {
+            view1: require(__dirname + '/fixtures/views/view1'),
+            view2: require(__dirname + '/fixtures/views/view2')
+        });
+        test.done();
+    });
+};
+
+exports.testRunViewsEmpty = function(test){
+    petrify.runViews({}, [], '', function(err){
+        test.done();
+    });
+};
+
+exports.testRunViewsSingle = function(test){
+    test.expect(4);
+    var testdata = [{test: 'test'}];
+    var views = {
+        view1: {parse: function(view, data, partials){
+            test.ok(view.emit instanceof Function);
+            test.ok(view.done instanceof Function);
+            test.same(data, testdata);
+            test.same(partials, {});
+            view.done();
+        }}
+    };
+    petrify.runViews(views, testdata, '', function(err){
+        test.done();
+    });
+};
+
+exports.testRunViewsDependencies = function(test){
+    var callOrder = [];
+    var testdata = [{test: 'test'}];
+    var views = {
+        view1: {
+            requires: ['view2'],
+            parse: function(view, data, partials){
+                setTimeout(function(){
+                    callOrder.push('view1');
+                    view.done();
+                }, 100);
+            }
+        },
+        view2: {parse: function(view, data, partials){
+            setTimeout(function(){
+                callOrder.push('view2');
+                view.done();
+            }, 200);
+        }},
+        view3: {
+            requires: ['view2'],
+            parse: function(view, data, partials){
+                callOrder.push('view3');
+                view.done();
+            }
+        },
+        view4: {
+            requires: ['view1', 'view2'],
+            parse: function(view, data, partials){
+                callOrder.push('view4');
+                view.done();
+            }
+        }
+    };
+    petrify.runViews(views, testdata, '', function(err){
+        test.same(callOrder, ['view2','view3','view1','view4']);
+        test.done();
+    });
+};
+
+exports.testRunViewsEmit = function(test){
+    test.expect(3);
+    var emit_copy = petrify.emit;
+    petrify.emit = function(output_dir, path, data){
+        test.equals(output_dir, 'output_dir');
+        test.equals(path, '/somepath');
+        test.equals(data, 'some data');
+    };
+    var views = {
+        view1: {parse: function(view, data, partials){
+            view.emit('/somepath', 'some data');
+            view.done();
+        }}
+    };
+    petrify.runViews(views, [], 'output_dir', function(err){
+        petrify.emit = emit_copy;
+        test.done();
+    });
+};
+
+exports.testRunViewsPartials = function(test){
+    test.expect(2);
+    var views = {
+        view1: {
+            requires: [],
+            parse: function(view, data, partials){
+                test.same(partials, {})
+                partials.test = 'partial';
+                view.done();
+            }
+        },
+        view2: {
+            requires: ['view1'],
+            parse: function(view, data, partials){
+                test.same(partials, {test:'partial'})
+                view.done();
+            }
+        }
+    };
+    petrify.runViews(views, [], 'output_dir', function(err){
+        test.done();
+    });
+};
