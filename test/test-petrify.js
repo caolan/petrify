@@ -1,4 +1,5 @@
-var petrify = require('petrify');
+var petrify = require('petrify'),
+    fs = require('fs');
 
 
 exports.testReadFileMarkdown = function(test){
@@ -127,10 +128,11 @@ exports.testRunViewsDependencies = function(test){
 exports.testRunViewsEmit = function(test){
     test.expect(3);
     var emit_copy = petrify.emit;
-    petrify.emit = function(output_dir, path, data){
+    petrify.emit = function(output_dir, path, data, callback){
         test.equals(output_dir, 'output_dir');
         test.equals(path, '/somepath');
         test.equals(data, 'some data');
+        callback();
     };
     var views = {
         view1: {parse: function(view, data, partials){
@@ -164,6 +166,50 @@ exports.testRunViewsPartials = function(test){
         }
     };
     petrify.runViews(views, [], 'output_dir', function(err){
+        test.done();
+    });
+};
+
+exports.testEmit = function(test){
+    test.expect(2);
+    var writeFile_copy = fs.writeFile;
+    fs.writeFile = function(filename, data, callback){
+        test.equals(filename, __dirname + '/fixtures/www/testpath');
+        test.equals(data, 'some data');
+        callback();
+    };
+    var output_dir = __dirname + '/fixtures/www';
+    petrify.emit(output_dir, '/testpath', 'some data', function(err){
+        fs.writeFile = writeFile_copy;
+        test.done();
+    });
+};
+
+exports.testEmitNoLeadingSlash = function(test){
+    test.expect(2);
+    var writeFile_copy = fs.writeFile;
+    fs.writeFile = function(filename, data, callback){
+        test.equals(filename, __dirname + '/fixtures/www/testpath');
+        test.equals(data, 'some data');
+        callback();
+    };
+    var output_dir = __dirname + '/fixtures/www';
+    petrify.emit(output_dir, 'testpath', 'some data', function(err){
+        fs.writeFile = writeFile_copy;
+        test.done();
+    });
+};
+
+exports.testEmitError = function(test){
+    test.expect(1);
+    var writeFile_copy = fs.writeFile;
+    fs.writeFile = function(filename, data, callback){
+        callback('error');
+    };
+    var output_dir = __dirname + '/fixtures/www';
+    petrify.emit(output_dir, 'testpath', 'some data', function(err){
+        test.equals(err, 'error');
+        fs.writeFile = writeFile_copy;
         test.done();
     });
 };
