@@ -18,17 +18,26 @@ exports.testReadFileMarkdown = function(test){
 exports.testReadData = function(test){
     test.expect(1);
     petrify.readData(__dirname + '/fixtures/data', function(err, data){
+        data = data.sort(function(a,b){
+            if(a.filename < b.filename){
+                return -1;
+            }
+            if(a.filename > b.filename){
+                return 1;
+            }
+            return 0;
+        });
         test.same(data, [
-            {
-                filename:'file2.md',
-                key:'value',
-                body:'<h1>Test 2</h1>'
-            },
             {
                 filename: 'file1.md',
                 key1:'value1',
                 key2:'value2',
                 body:'<h1>Test</h1>\n\n<ul>\n<li>one</li>\n<li>two</li>\n</ul>'
+            },
+            {
+                filename:'file2.md',
+                key:'value',
+                body:'<h1>Test 2</h1>'
             }
         ]);
         test.done();
