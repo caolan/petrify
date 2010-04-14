@@ -1,4 +1,5 @@
 var petrify = require('petrify'),
+    jsontemplate = require('json-template'),
     fs = require('fs');
 
 
@@ -210,6 +211,18 @@ exports.testEmitError = function(test){
     petrify.emit(output_dir, 'testpath', 'some data', function(err){
         test.equals(err, 'error');
         fs.writeFile = writeFile_copy;
+        test.done();
+    });
+};
+
+exports.testLoadTemplates = function(test){
+    var template_dir = __dirname + '/fixtures/templates';
+
+    petrify.loadTemplates(template_dir, function(err, templates){
+        test.equals(
+            templates['testtemplate.jsont'].expand({name:'world'}),
+            'Hello world!\n'
+        );
         test.done();
     });
 };
