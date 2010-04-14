@@ -1,3 +1,6 @@
 [submodule "deps/nodeunit"]
 	path = deps/nodeunit
 	url = git://github.com/caolan/nodeunit.git
+[submodule "deps/json-template"]
+	path = deps/json-template
+	url = git://github.com/Gozala/json-template.git
