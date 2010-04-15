@@ -276,6 +276,31 @@ exports.testEmitError = function(test){
     });
 };
 
+exports.testEmitSubDir = function(test){
+    test.expect(4);
+    var output_dir = __dirname + '/filename/www';
+    var call_order = [];
+    var exec_copy = child_process.exec;
+    child_process.exec = function(command, callback){
+        test.same(command, 'mkdir -p ' + output_dir + '/subdir');
+        call_order.push('mkdir');
+        callback();
+    };
+    var writeFile_copy = fs.writeFile;
+    fs.writeFile = function(filename, data, callback){
+        test.equals(filename, output_dir + '/subdir/testpath');
+        test.equals(data, 'some data');
+        call_order.push('writeFile');
+        callback();
+    };
+    petrify.emit(output_dir, '/subdir/testpath', 'some data', function(err){
+        test.same(call_order, ['mkdir','writeFile']);
+        fs.writeFile = writeFile_copy;
+        child_process.exec = exec_copy;
+        test.done();
+    });
+};
+
 exports.testLoadTemplates = function(test){
     var template_dir = __dirname + '/fixtures/templates';
 
