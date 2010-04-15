@@ -1,7 +1,23 @@
 var petrify = require('petrify'),
     jsontemplate = require('json-template'),
+    child_process = require('child_process'),
+    path = require('path'),
     fs = require('fs');
 
+
+var ensureEmptyDir = function(callback){
+    var dirpath = __dirname + '/fixtures/empty_dir';
+    path.exists(dirpath, function(exists){
+        if(!exists){
+            fs.mkdir(dirpath, 0755, function(err){
+                callback(err, dirpath);
+            });
+        }
+        else {
+            callback(null, dirpath);
+        }
+    });
+};
 
 exports.testReadFileMarkdown = function(test){
     test.expect(1);
@@ -46,6 +62,17 @@ exports.testReadData = function(test){
     });
 };
 
+exports.testReadDataEmptyDir = function(test){
+    test.expect(1);
+    ensureEmptyDir(function(err, emptydir){
+        if(err) test.ok(false, err);
+        petrify.readData(emptydir, function(err, data){
+            test.same(data, []);
+            test.done();
+        });
+    });
+};
+
 exports.testLoadViewsMissingPath = function(test){
     petrify.loadViews(__dirname + '/fixtures/blah', function(err, views){
         test.ok(err instanceof Error);
@@ -60,6 +87,17 @@ exports.testLoadViews = function(test){
             view2: require(__dirname + '/fixtures/views/view2')
         });
         test.done();
+    });
+};
+
+exports.testLoadViewsEmptyDir = function(test){
+    test.expect(1);
+    ensureEmptyDir(function(err, emptydir){
+        if(err) test.ok(false, err);
+        petrify.loadViews(emptydir, function(err, views){
+            test.same(views, {});
+            test.done();
+        });
     });
 };
 
@@ -250,27 +288,42 @@ exports.testLoadTemplates = function(test){
     });
 };
 
+exports.testLoadTemplatesEmptyDir = function(test){
+    test.expect(1);
+    ensureEmptyDir(function(err, emptydir){
+        if(err) test.ok(false, err);
+        petrify.loadTemplates(emptydir, function(err, templates){
+            test.same(templates, {});
+            test.done();
+        });
+    });
+};
+
 exports.testRun = function(test){
-    test.expect(7);
+    test.expect(10);
+    var call_order = [];
     var options = {
         template_dir: 'template_dir',
-        output_dir: 'output_dir',
+        output_dir: __dirname + '/fixtures/dir_exists',
         view_dir: 'view_dir',
         data_dir: 'data_dir'
     };
     var loadTemplates_copy = petrify.loadTemplates;
     petrify.loadTemplates = function(template_dir, callback){
         test.equals(template_dir, options.template_dir);
+        call_order.push('loadTemplates');
         callback(null, 'templates');
     };
     var loadViews_copy = petrify.loadViews;
     petrify.loadViews = function(view_dir, callback){
         test.equals(view_dir, options.view_dir);
+        call_order.push('loadViews');
         callback(null, 'views');
     };
     var readData_copy = petrify.readData;
     petrify.readData = function(data_dir, callback){
         test.equals(data_dir, options.data_dir);
+        call_order.push('readData');
         callback(null, 'data');
     };
     var runViews_copy = petrify.runViews;
@@ -279,14 +332,30 @@ exports.testRun = function(test){
         test.equals(opts.data, 'data');
         test.equals(opts.templates, 'templates');
         test.equals(opts.output_dir, options.output_dir);
+        call_order.push('runViews');
+        callback();
+    };
+
+    var exec_copy = child_process.exec;
+    child_process.exec = function(command, callback){
+        call_order.push('rm');
+        test.same(command, 'rm -r ' + options.output_dir);
+        child_process.exec = function(command, callback){
+            call_order.push('mkdir');
+            test.same(command, 'mkdir ' + options.output_dir);
+            callback();
+        };
         callback();
     };
 
     petrify.run(options, function(err){
+        // runViews should run last
+        test.ok(call_order[call_order.length-1], 'runViews');
         petrify.loadTemplates = loadTemplates_copy;
         petrify.loadViews = loadViews_copy;
         petrify.readData = readData_copy;
         petrify.runViews = runViews_copy;
+        child_process.exec = exec_copy;
         test.done();
     });
 };
