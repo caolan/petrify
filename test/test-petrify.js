@@ -64,24 +64,32 @@ exports.testLoadViews = function(test){
 };
 
 exports.testRunViewsEmpty = function(test){
-    petrify.runViews({}, [], '', function(err){
+    petrify.runViews({
+        views: {}, data: [], templates: {}, output_dir: ''
+    }, function(err){
         test.done();
     });
 };
 
 exports.testRunViewsSingle = function(test){
-    test.expect(4);
+    test.expect(5);
     var testdata = [{test: 'test'}];
     var views = {
-        view1: {parse: function(view, data, partials){
+        view1: {parse: function(view, templates, data, partials){
             test.ok(view.emit instanceof Function);
             test.ok(view.done instanceof Function);
+            test.same(templates, {test:'templates'});
             test.same(data, testdata);
             test.same(partials, {});
             view.done();
         }}
     };
-    petrify.runViews(views, testdata, '', function(err){
+    petrify.runViews({
+        views: views,
+        data: testdata,
+        templates: {test:'templates'},
+        output_dir: ''
+    }, function(err){
         test.done();
     });
 };
@@ -92,14 +100,14 @@ exports.testRunViewsDependencies = function(test){
     var views = {
         view1: {
             requires: ['view2'],
-            parse: function(view, data, partials){
+            parse: function(view, templates, data, partials){
                 setTimeout(function(){
                     callOrder.push('view1');
                     view.done();
                 }, 100);
             }
         },
-        view2: {parse: function(view, data, partials){
+        view2: {parse: function(view, templates, data, partials){
             setTimeout(function(){
                 callOrder.push('view2');
                 view.done();
@@ -107,20 +115,25 @@ exports.testRunViewsDependencies = function(test){
         }},
         view3: {
             requires: ['view2'],
-            parse: function(view, data, partials){
+            parse: function(view, templates, data, partials){
                 callOrder.push('view3');
                 view.done();
             }
         },
         view4: {
             requires: ['view1', 'view2'],
-            parse: function(view, data, partials){
+            parse: function(view, templates, data, partials){
                 callOrder.push('view4');
                 view.done();
             }
         }
     };
-    petrify.runViews(views, testdata, '', function(err){
+    petrify.runViews({
+        views: views,
+        data: testdata,
+        templates: {},
+        output_dir: ''
+    }, function(err){
         test.same(callOrder, ['view2','view3','view1','view4']);
         test.done();
     });
@@ -136,12 +149,17 @@ exports.testRunViewsEmit = function(test){
         callback();
     };
     var views = {
-        view1: {parse: function(view, data, partials){
+        view1: {parse: function(view, templates, data, partials){
             view.emit('/somepath', 'some data');
             view.done();
         }}
     };
-    petrify.runViews(views, [], 'output_dir', function(err){
+    petrify.runViews({
+        views: views,
+        data: [],
+        templates: {},
+        output_dir: 'output_dir'
+    }, function(err){
         petrify.emit = emit_copy;
         test.done();
     });
@@ -152,7 +170,7 @@ exports.testRunViewsPartials = function(test){
     var views = {
         view1: {
             requires: [],
-            parse: function(view, data, partials){
+            parse: function(view, templates, data, partials){
                 test.same(partials, {})
                 partials.test = 'partial';
                 view.done();
@@ -160,13 +178,18 @@ exports.testRunViewsPartials = function(test){
         },
         view2: {
             requires: ['view1'],
-            parse: function(view, data, partials){
+            parse: function(view, templates, data, partials){
                 test.same(partials, {test:'partial'})
                 view.done();
             }
         }
     };
-    petrify.runViews(views, [], 'output_dir', function(err){
+    petrify.runViews({
+        views: views,
+        data: [],
+        templates: {},
+        output_dir: 'output_dir'
+    }, function(err){
         test.done();
     });
 };
@@ -223,6 +246,47 @@ exports.testLoadTemplates = function(test){
             templates['testtemplate.jsont'].expand({name:'world'}),
             'Hello world!\n'
         );
+        test.done();
+    });
+};
+
+exports.testRun = function(test){
+    test.expect(7);
+    var options = {
+        template_dir: 'template_dir',
+        output_dir: 'output_dir',
+        view_dir: 'view_dir',
+        data_dir: 'data_dir'
+    };
+    var loadTemplates_copy = petrify.loadTemplates;
+    petrify.loadTemplates = function(template_dir, callback){
+        test.equals(template_dir, options.template_dir);
+        callback(null, 'templates');
+    };
+    var loadViews_copy = petrify.loadViews;
+    petrify.loadViews = function(view_dir, callback){
+        test.equals(view_dir, options.view_dir);
+        callback(null, 'views');
+    };
+    var readData_copy = petrify.readData;
+    petrify.readData = function(data_dir, callback){
+        test.equals(data_dir, options.data_dir);
+        callback(null, 'data');
+    };
+    var runViews_copy = petrify.runViews;
+    petrify.runViews = function(opts, callback){
+        test.equals(opts.views, 'views');
+        test.equals(opts.data, 'data');
+        test.equals(opts.templates, 'templates');
+        test.equals(opts.output_dir, options.output_dir);
+        callback();
+    };
+
+    petrify.run(options, function(err){
+        petrify.loadTemplates = loadTemplates_copy;
+        petrify.loadViews = loadViews_copy;
+        petrify.readData = readData_copy;
+        petrify.runViews = runViews_copy;
         test.done();
     });
 };
