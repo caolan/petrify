@@ -3,6 +3,7 @@
 require.paths.push(__dirname);
 require.paths.push(__dirname + '/deps');
 require.paths.push(__dirname + '/deps/json-template/lib');
+require.paths.push(__dirname + '/deps/markdown-js/lib');
 require.paths.push(__dirname + '/lib');
 
 try {

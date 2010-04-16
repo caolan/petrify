@@ -27,7 +27,7 @@ exports.testReadFileMarkdown = function(test){
             filename: 'file1.md',
             key1: 'value1',
             key2: 'value2',
-            body: '<h1>Test</h1>\n\n<ul>\n<li>one</li>\n<li>two</li>\n</ul>'
+            body: '<h1>Test</h1>\n\n<ul><li>one</li><li>two</li></ul>'
         });
         test.done();
     });
@@ -50,7 +50,7 @@ exports.testReadData = function(test){
                 filename: 'file1.md',
                 key1:'value1',
                 key2:'value2',
-                body:'<h1>Test</h1>\n\n<ul>\n<li>one</li>\n<li>two</li>\n</ul>'
+                body:'<h1>Test</h1>\n\n<ul><li>one</li><li>two</li></ul>'
             },
             {
                 filename:'file2.md',
