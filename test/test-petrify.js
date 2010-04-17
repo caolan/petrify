@@ -20,7 +20,7 @@ var ensureEmptyDir = function(callback){
 };
 
 exports.testReadFileMarkdown = function(test){
-    test.expect(5);
+    test.expect(6);
     var filename = __dirname + '/fixtures/data/file1.md';
     petrify.readFile(filename, function(err, data){
         test.equals(data.filename, 'file1.md');
@@ -33,6 +33,9 @@ exports.testReadFileMarkdown = function(test){
         test.equals(data.heading, 'Test');
         test.equals(
             data.html, '<h1>Test</h1>\n\n<ul><li>one</li><li>two</li></ul>'
+        );
+        test.equals(
+            data.html_no_heading, '<ul><li>one</li><li>two</li></ul>'
         );
         test.done();
     });
@@ -60,7 +63,8 @@ exports.testReadData = function(test){
                     ["bulletlist",["listitem", "one"],["listitem","two"]]
                 ],
                 heading: 'Test',
-                html:'<h1>Test</h1>\n\n<ul><li>one</li><li>two</li></ul>'
+                html:'<h1>Test</h1>\n\n<ul><li>one</li><li>two</li></ul>',
+                html_no_heading:'<ul><li>one</li><li>two</li></ul>'
             },
             {
                 filename:'file2.md',
@@ -70,7 +74,8 @@ exports.testReadData = function(test){
                     ["header",{"level":1},"Test 2"]
                 ],
                 heading: 'Test 2',
-                html:'<h1>Test 2</h1>'
+                html:'<h1>Test 2</h1>',
+                html_no_heading:''
             }
         ]);
         test.done();
