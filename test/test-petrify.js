@@ -20,15 +20,20 @@ var ensureEmptyDir = function(callback){
 };
 
 exports.testReadFileMarkdown = function(test){
-    test.expect(1);
+    test.expect(5);
     var filename = __dirname + '/fixtures/data/file1.md';
     petrify.readFile(filename, function(err, data){
-        test.same(data, {
-            filename: 'file1.md',
-            key1: 'value1',
-            key2: 'value2',
-            body: '<h1>Test</h1>\n\n<ul><li>one</li><li>two</li></ul>'
-        });
+        test.equals(data.filename, 'file1.md');
+        test.same(data.meta, {key1: 'value1', key2: 'value2'});
+        test.same(data.jsonml, ["markdown",
+            {"key1":"value1","key2":"value2"},
+            ["header",{"level":1},"Test"],
+            ["bulletlist",["listitem", "one"],["listitem","two"]]
+        ]);
+        test.equals(data.heading, 'Test');
+        test.equals(
+            data.html, '<h1>Test</h1>\n\n<ul><li>one</li><li>two</li></ul>'
+        );
         test.done();
     });
 };
@@ -48,14 +53,24 @@ exports.testReadData = function(test){
         test.same(data, [
             {
                 filename: 'file1.md',
-                key1:'value1',
-                key2:'value2',
-                body:'<h1>Test</h1>\n\n<ul><li>one</li><li>two</li></ul>'
+                meta: {key1:'value1', key2:'value2'},
+                jsonml: ["markdown",
+                    {"key1":"value1","key2":"value2"},
+                    ["header",{"level":1},"Test"],
+                    ["bulletlist",["listitem", "one"],["listitem","two"]]
+                ],
+                heading: 'Test',
+                html:'<h1>Test</h1>\n\n<ul><li>one</li><li>two</li></ul>'
             },
             {
                 filename:'file2.md',
-                key:'value',
-                body:'<h1>Test 2</h1>'
+                meta: {key:'value'},
+                jsonml: ["markdown",
+                    {"key":"value"},
+                    ["header",{"level":1},"Test 2"]
+                ],
+                heading: 'Test 2',
+                html:'<h1>Test 2</h1>'
             }
         ]);
         test.done();
