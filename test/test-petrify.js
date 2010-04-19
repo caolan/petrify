@@ -60,7 +60,7 @@ exports.testReadFileMarkdown = function(test){
 
 exports.testReadData = function(test){
     test.expect(1);
-    petrify.readData(__dirname + '/fixtures/data', function(err, data){
+    petrify.loadData(__dirname + '/fixtures/data', function(err, data){
         data = data.sort(function(a,b){
             if(a.filename < b.filename){
                 return -1;
@@ -103,7 +103,7 @@ exports.testReadDataEmptyDir = function(test){
     test.expect(1);
     ensureEmptyDir(function(err, emptydir){
         if(err) test.ok(false, err);
-        petrify.readData(emptydir, function(err, data){
+        petrify.loadData(emptydir, function(err, data){
             test.same(data, []);
             test.done();
         });
@@ -418,10 +418,10 @@ exports.testRun = function(test){
         call_order.push('loadViews');
         callback(null, 'views');
     };
-    var readData_copy = petrify.readData;
-    petrify.readData = function(data_dir, callback){
+    var loadData_copy = petrify.loadData;
+    petrify.loadData = function(data_dir, callback){
         test.equals(data_dir, options.data_dir);
-        call_order.push('readData');
+        call_order.push('loadData');
         callback(null, 'data');
     };
     var runViews_copy = petrify.runViews;
@@ -451,7 +451,7 @@ exports.testRun = function(test){
         test.ok(call_order[call_order.length-1], 'runViews');
         petrify.loadTemplates = loadTemplates_copy;
         petrify.loadViews = loadViews_copy;
-        petrify.readData = readData_copy;
+        petrify.loadData = loadData_copy;
         petrify.runViews = runViews_copy;
         child_process.exec = exec_copy;
         test.done();
