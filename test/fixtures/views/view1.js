@@ -1,3 +1,3 @@
-exports.parse = function(){
+exports.run = function(){
     return 'view1';
 };
