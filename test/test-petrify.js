@@ -123,7 +123,7 @@ exports.testLoadViewsEmptyDir = function(test){
 
 exports.testRunViewsEmpty = function(test){
     petrify.runViews({
-        views: {}, data: [], templates: {}, output_dir: ''
+        views: {}, data: [], templates: {}, output_dir: '',
     }, function(err){
         test.done();
     });
@@ -133,7 +133,7 @@ exports.testRunViewsSingle = function(test){
     test.expect(5);
     var testdata = [{test: 'test'}];
     var views = {
-        view1: {parse: function(view, templates, data, partials){
+        view1: {run: function(view, templates, data, partials){
             test.ok(view.emit instanceof Function);
             test.ok(view.done instanceof Function);
             test.same(templates, {test:'templates'});
@@ -158,14 +158,14 @@ exports.testRunViewsDependencies = function(test){
     var views = {
         view1: {
             requires: ['view2'],
-            parse: function(view, templates, data, partials){
+            run: function(view, templates, data, partials){
                 setTimeout(function(){
                     callOrder.push('view1');
                     view.done();
                 }, 100);
             }
         },
-        view2: {parse: function(view, templates, data, partials){
+        view2: {run: function(view, templates, data, partials){
             setTimeout(function(){
                 callOrder.push('view2');
                 view.done();
@@ -173,14 +173,14 @@ exports.testRunViewsDependencies = function(test){
         }},
         view3: {
             requires: ['view2'],
-            parse: function(view, templates, data, partials){
+            run: function(view, templates, data, partials){
                 callOrder.push('view3');
                 view.done();
             }
         },
         view4: {
             requires: ['view1', 'view2'],
-            parse: function(view, templates, data, partials){
+            run: function(view, templates, data, partials){
                 callOrder.push('view4');
                 view.done();
             }
@@ -207,7 +207,7 @@ exports.testRunViewsEmit = function(test){
         callback();
     };
     var views = {
-        view1: {parse: function(view, templates, data, partials){
+        view1: {run: function(view, templates, data, partials){
             view.emit('/somepath', 'some data');
             view.done();
         }}
@@ -228,7 +228,7 @@ exports.testRunViewsPartials = function(test){
     var views = {
         view1: {
             requires: [],
-            parse: function(view, templates, data, partials){
+            run: function(view, templates, data, partials){
                 test.same(partials, {})
                 partials.test = 'partial';
                 view.done();
@@ -236,7 +236,7 @@ exports.testRunViewsPartials = function(test){
         },
         view2: {
             requires: ['view1'],
-            parse: function(view, templates, data, partials){
+            run: function(view, templates, data, partials){
                 test.same(partials, {test:'partial'})
                 view.done();
             }
@@ -248,6 +248,42 @@ exports.testRunViewsPartials = function(test){
         templates: {},
         output_dir: 'output_dir'
     }, function(err){
+        test.done();
+    });
+};
+
+exports.testRunViewsCallbacks = function(test){
+    var calls = [];
+    var testdata = [{test: 'test'}];
+    var views = {
+        view1: {
+            requires: ['view2'],
+            run: function(view, templates, data, partials){
+                view.done();
+            }
+        },
+        view2: {run: function(view, templates, data, partials){
+            view.done();
+        }},
+    };
+    petrify.runViews({
+        views: views,
+        data: testdata,
+        templates: {},
+        output_dir: '',
+        onViewStart: function(name){
+            calls.push(name + ' start');
+        },
+        onViewDone: function(name){
+            calls.push(name + ' done');
+        },
+    }, function(err){
+        test.same(calls, [
+            'view2 start',
+            'view2 done',
+            'view1 start',
+            'view1 done',
+        ]);
         test.done();
     });
 };
