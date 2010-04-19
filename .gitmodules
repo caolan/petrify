@@ -7,3 +7,6 @@
 [submodule "deps/markdown-js"]
 	path = deps/markdown-js
 	url = git://github.com/evilstreak/markdown-js.git
+[submodule "deps/behaviours"]
+	path = deps/behaviours
+	url = git://github.com/caolan/behaviors.git
