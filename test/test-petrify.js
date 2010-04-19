@@ -22,7 +22,7 @@ var ensureEmptyDir = function(callback){
 exports.testReadFileMarkdown = function(test){
     test.expect(6);
     var filename = __dirname + '/fixtures/data/file1.md';
-    petrify.readFile(filename, function(err, data){
+    /*petrify.readFile(filename, function(err, data){
         test.equals(data.filename, 'file1.md');
         test.same(data.meta, {key1: 'value1', key2: 'value2'});
         test.same(data.jsonml, ["markdown",
@@ -38,7 +38,24 @@ exports.testReadFileMarkdown = function(test){
             data.html_no_heading, '<ul><li>one</li><li>two</li></ul>'
         );
         test.done();
-    });
+    });*/
+    var data = 'key1: value1\nkey2: value2\n\n# Test\n\n* one\n* two';
+    var r = petrify.readFile(filename, data);
+    test.equals(r.filename, 'file1.md');
+    test.same(r.meta, {key1: 'value1', key2: 'value2'});
+    test.same(r.jsonml, ["markdown",
+        {"key1":"value1","key2":"value2"},
+        ["header",{"level":1},"Test"],
+        ["bulletlist",["listitem", "one"],["listitem","two"]]
+    ]);
+    test.equals(r.heading, 'Test');
+    test.equals(
+        r.html, '<h1>Test</h1>\n\n<ul><li>one</li><li>two</li></ul>'
+    );
+    test.equals(
+        r.html_no_heading, '<ul><li>one</li><li>two</li></ul>'
+    );
+    test.done();
 };
 
 exports.testReadData = function(test){
