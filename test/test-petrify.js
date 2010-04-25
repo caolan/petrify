@@ -45,12 +45,12 @@ exports.testReadFileMarkdown = function(test){
 exports.testLoadData = function(test){
     test.expect(7);
     var loadData = petrify.loadData(__dirname + '/fixtures/data');
-    loadData.addListener('loaded', function(filename, completed, total){
+    loadData.addListener('load', function(filename, completed, total){
         test.ok(filename == 'file1.md' || filename == 'file2.md');
         test.ok(typeof completed == 'number');
         test.ok(typeof total == 'number');
     });
-    loadData.addListener('finished', function(err, data){
+    loadData.addListener('loaded', function(err, data){
         data = data.sort(function(a,b){
             if(a.filename < b.filename){
                 return -1;
@@ -94,10 +94,10 @@ exports.testLoadDataEmptyDir = function(test){
     ensureEmptyDir(function(err, emptydir){
         if(err) test.ok(false, err);
         var loadData = petrify.loadData(emptydir);
-        loadData.addListener('loaded', function(){
-            test.ok(false, 'loaded event should not be emitted');
+        loadData.addListener('load', function(){
+            test.ok(false, 'load event should not be emitted');
         });
-        loadData.addListener('finished', function(err, data){
+        loadData.addListener('loaded', function(err, data){
             test.same(data, []);
             test.done();
         });
@@ -106,10 +106,10 @@ exports.testLoadDataEmptyDir = function(test){
 
 exports.testLoadViewsMissingPath = function(test){
     var loadViews = petrify.loadViews(__dirname + '/fixtures/blah');
-    loadViews.addListener('loaded', function(){
-        test.ok(false, 'loaded event should not be emitted');
+    loadViews.addListener('load', function(){
+        test.ok(false, 'load event should not be emitted');
     });
-    loadViews.addListener('finished', function(err, views){
+    loadViews.addListener('loaded', function(err, views){
         test.ok(err instanceof Error);
         test.done();
     });
@@ -118,10 +118,10 @@ exports.testLoadViewsMissingPath = function(test){
 exports.testLoadViews = function(test){
     test.expect(3);
     var loadViews = petrify.loadViews(__dirname + '/fixtures/views');
-    loadViews.addListener('loaded', function(name, completed, total){
+    loadViews.addListener('load', function(name, completed, total){
         test.ok(name == 'view1' || name == 'view2');
     });
-    loadViews.addListener('finished', function(err, views){
+    loadViews.addListener('loaded', function(err, views){
         test.same(views, {
             view1: require(__dirname + '/fixtures/views/view1'),
             view2: require(__dirname + '/fixtures/views/view2')
@@ -135,10 +135,10 @@ exports.testLoadViewsEmptyDir = function(test){
     ensureEmptyDir(function(err, emptydir){
         if(err) test.ok(false, err);
         var loadViews = petrify.loadViews(emptydir);
-        loadViews.addListener('loaded', function(){
-            test.ok(false, 'loaded event should not be emitted');
+        loadViews.addListener('load', function(){
+            test.ok(false, 'load event should not be emitted');
         });
-        loadViews.addListener('finished', function(err, views){
+        loadViews.addListener('loaded', function(err, views){
             test.same(views, {});
             test.done();
         });
@@ -419,7 +419,7 @@ exports.testLoadTemplates = function(test){
     var template_dir = __dirname + '/fixtures/templates';
 
     var templates = petrify.loadTemplates(template_dir);
-    templates.addListener('finished', function(err, templates){
+    templates.addListener('loaded', function(err, templates){
         test.equals(
             templates['testtemplate.jsont'].expand({name:'world'}),
             'Hello world!\n'
@@ -433,7 +433,7 @@ exports.testLoadTemplatesEmptyDir = function(test){
     ensureEmptyDir(function(err, emptydir){
         if(err) test.ok(false, err);
         var templates = petrify.loadTemplates(emptydir);
-        templates.addListener('finished', function(err, templates){
+        templates.addListener('loaded', function(err, templates){
             test.same(templates, {});
             test.done();
         });
@@ -441,7 +441,7 @@ exports.testLoadTemplatesEmptyDir = function(test){
 };
 
 exports.testRun = function(test){
-    test.expect(10);
+    test.expect(25);
     var call_order = [];
     var options = {
         template_dir: 'template_dir',
@@ -455,7 +455,8 @@ exports.testRun = function(test){
         test.equals(template_dir, options.template_dir);
         call_order.push('loadTemplates');
         process.nextTick(function(){
-            emitter.emit('finished', null, 'templates');
+            emitter.emit('load', 'template1', 1, 2);
+            emitter.emit('loaded', null, 'templates');
         });
         return emitter;
     };
@@ -465,7 +466,8 @@ exports.testRun = function(test){
         test.equals(view_dir, options.view_dir);
         call_order.push('loadViews');
         process.nextTick(function(){
-            emitter.emit('finished', null, 'views');
+            emitter.emit('load', 'view1', 1, 2);
+            emitter.emit('loaded', null, 'views');
         });
         return emitter;
     };
@@ -475,7 +477,8 @@ exports.testRun = function(test){
         test.equals(data_dir, options.data_dir);
         call_order.push('loadData');
         process.nextTick(function(){
-            emitter.emit('finished', null, 'data');
+            emitter.emit('load', 'data1', 1, 2);
+            emitter.emit('loaded', null, 'data');
         });
         return emitter;
     };
@@ -488,6 +491,9 @@ exports.testRun = function(test){
         test.equals(opts.output_dir, options.output_dir);
         call_order.push('runViews');
         process.nextTick(function(){
+            emitter.emit('view_started', 'view1');
+            emitter.emit('emit', 'view1', 'path');
+            emitter.emit('view_done', 'view1');
             emitter.emit('finished', null, 'runViews');
         });
         return emitter;
@@ -506,6 +512,39 @@ exports.testRun = function(test){
     };
 
     var runner = petrify.run(options);
+    runner.templates.addListener('load', function(filename, complete, total){
+        test.equals(filename, 'template1');
+        test.equals(complete, 1);
+        test.equals(total, 2);
+    });
+    runner.templates.addListener('loaded', function(err, templates){
+        test.equals(templates, 'templates');
+    });
+    runner.views.addListener('load', function(filename, complete, total){
+        test.equals(filename, 'view1');
+        test.equals(complete, 1);
+        test.equals(total, 2);
+    });
+    runner.views.addListener('loaded', function(err, views){
+        test.equals(views, 'views');
+    });
+    runner.views.addListener('view_started', function(name){
+        test.equals(name, 'view1');
+    });
+    runner.views.addListener('view_done', function(name){
+        test.equals(name, 'view1');
+    });
+    runner.views.addListener('finished', function(){
+        test.ok(true);
+    });
+    runner.data.addListener('load', function(filename, complete, total){
+        test.equals(filename, 'data1');
+        test.equals(complete, 1);
+        test.equals(total, 2);
+    });
+    runner.data.addListener('loaded', function(err, data){
+        test.equals(data, 'data');
+    });
     runner.addListener('finished', function(err){
         // runViews should run last
         test.ok(call_order[call_order.length-1], 'runViews');
