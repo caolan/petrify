@@ -1,6 +1,7 @@
 var petrify = require('petrify'),
     jsontemplate = require('json-template'),
     child_process = require('child_process'),
+    events = require('events'),
     path = require('path'),
     fs = require('fs');
 
@@ -22,23 +23,6 @@ var ensureEmptyDir = function(callback){
 exports.testReadFileMarkdown = function(test){
     test.expect(6);
     var filename = __dirname + '/fixtures/data/file1.md';
-    /*petrify.readFile(filename, function(err, data){
-        test.equals(data.filename, 'file1.md');
-        test.same(data.meta, {key1: 'value1', key2: 'value2'});
-        test.same(data.jsonml, ["markdown",
-            {"key1":"value1","key2":"value2"},
-            ["header",{"level":1},"Test"],
-            ["bulletlist",["listitem", "one"],["listitem","two"]]
-        ]);
-        test.equals(data.heading, 'Test');
-        test.equals(
-            data.html, '<h1>Test</h1>\n\n<ul><li>one</li><li>two</li></ul>'
-        );
-        test.equals(
-            data.html_no_heading, '<ul><li>one</li><li>two</li></ul>'
-        );
-        test.done();
-    });*/
     var data = 'key1: value1\nkey2: value2\n\n# Test\n\n* one\n* two';
     var r = petrify.readFile(filename, data);
     test.equals(r.filename, 'file1.md');
@@ -58,9 +42,10 @@ exports.testReadFileMarkdown = function(test){
     test.done();
 };
 
-exports.testReadData = function(test){
+exports.testLoadData = function(test){
     test.expect(1);
-    petrify.loadData(__dirname + '/fixtures/data', function(err, data){
+    var loadData = petrify.loadData(__dirname + '/fixtures/data');
+    loadData.addListener('finished', function(err, data){
         data = data.sort(function(a,b){
             if(a.filename < b.filename){
                 return -1;
@@ -99,11 +84,12 @@ exports.testReadData = function(test){
     });
 };
 
-exports.testReadDataEmptyDir = function(test){
+exports.testLoadDataEmptyDir = function(test){
     test.expect(1);
     ensureEmptyDir(function(err, emptydir){
         if(err) test.ok(false, err);
-        petrify.loadData(emptydir, function(err, data){
+        var loadData = petrify.loadData(emptydir);
+        loadData.addListener('finished', function(err, data){
             test.same(data, []);
             test.done();
         });
@@ -111,14 +97,16 @@ exports.testReadDataEmptyDir = function(test){
 };
 
 exports.testLoadViewsMissingPath = function(test){
-    petrify.loadViews(__dirname + '/fixtures/blah', function(err, views){
+    var loadViews = petrify.loadViews(__dirname + '/fixtures/blah');
+    loadViews.addListener('finished', function(err, views){
         test.ok(err instanceof Error);
         test.done();
     });
 };
 
 exports.testLoadViews = function(test){
-    petrify.loadViews(__dirname + '/fixtures/views', function(err, views){
+    var loadViews = petrify.loadViews(__dirname + '/fixtures/views');
+    loadViews.addListener('finished', function(err, views){
         test.same(views, {
             view1: require(__dirname + '/fixtures/views/view1'),
             view2: require(__dirname + '/fixtures/views/view2')
@@ -131,7 +119,8 @@ exports.testLoadViewsEmptyDir = function(test){
     test.expect(1);
     ensureEmptyDir(function(err, emptydir){
         if(err) test.ok(false, err);
-        petrify.loadViews(emptydir, function(err, views){
+        var loadViews = petrify.loadViews(emptydir);
+        loadViews.addListener('finished', function(err, views){
             test.same(views, {});
             test.done();
         });
@@ -139,9 +128,10 @@ exports.testLoadViewsEmptyDir = function(test){
 };
 
 exports.testRunViewsEmpty = function(test){
-    petrify.runViews({
+    var runViews = petrify.runViews({
         views: {}, data: [], templates: {}, output_dir: '',
-    }, function(err){
+    });
+    runViews.addListener('finished', function(err){
         test.done();
     });
 };
@@ -159,12 +149,13 @@ exports.testRunViewsSingle = function(test){
             view.done();
         }}
     };
-    petrify.runViews({
+    var runViews = petrify.runViews({
         views: views,
         data: testdata,
         templates: {test:'templates'},
         output_dir: ''
-    }, function(err){
+    });
+    runViews.addListener('finished', function(err){
         test.done();
     });
 };
@@ -203,12 +194,13 @@ exports.testRunViewsDependencies = function(test){
             }
         }
     };
-    petrify.runViews({
+    var runViews = petrify.runViews({
         views: views,
         data: testdata,
         templates: {},
         output_dir: ''
-    }, function(err){
+    });
+    runViews.addListener('finished', function(err){
         test.same(callOrder, ['view2','view3','view1','view4']);
         test.done();
     });
@@ -229,12 +221,13 @@ exports.testRunViewsEmit = function(test){
             view.done();
         }}
     };
-    petrify.runViews({
+    var runViews = petrify.runViews({
         views: views,
         data: [],
         templates: {},
         output_dir: 'output_dir'
-    }, function(err){
+    });
+    runViews.addListener('finished', function(err){
         petrify.emit = emit_copy;
         test.done();
     });
@@ -259,12 +252,13 @@ exports.testRunViewsPartials = function(test){
             }
         }
     };
-    petrify.runViews({
+    var runViews = petrify.runViews({
         views: views,
         data: [],
         templates: {},
         output_dir: 'output_dir'
-    }, function(err){
+    });
+    runViews.addListener('finished', function(err){
         test.done();
     });
 };
@@ -283,7 +277,7 @@ exports.testRunViewsCallbacks = function(test){
             view.done();
         }},
     };
-    petrify.runViews({
+    var runViews = petrify.runViews({
         views: views,
         data: testdata,
         templates: {},
@@ -294,7 +288,8 @@ exports.testRunViewsCallbacks = function(test){
         onViewDone: function(name){
             calls.push(name + ' done');
         },
-    }, function(err){
+    });
+    runViews.addListener('finished', function(err){
         test.same(calls, [
             'view2 start',
             'view2 done',
@@ -395,7 +390,8 @@ exports.testEmitSubDir = function(test){
 exports.testLoadTemplates = function(test){
     var template_dir = __dirname + '/fixtures/templates';
 
-    petrify.loadTemplates(template_dir, function(err, templates){
+    var templates = petrify.loadTemplates(template_dir);
+    templates.addListener('finished', function(err, templates){
         test.equals(
             templates['testtemplate.jsont'].expand({name:'world'}),
             'Hello world!\n'
@@ -408,7 +404,8 @@ exports.testLoadTemplatesEmptyDir = function(test){
     test.expect(1);
     ensureEmptyDir(function(err, emptydir){
         if(err) test.ok(false, err);
-        petrify.loadTemplates(emptydir, function(err, templates){
+        var templates = petrify.loadTemplates(emptydir);
+        templates.addListener('finished', function(err, templates){
             test.same(templates, {});
             test.done();
         });
@@ -425,31 +422,47 @@ exports.testRun = function(test){
         data_dir: 'data_dir'
     };
     var loadTemplates_copy = petrify.loadTemplates;
-    petrify.loadTemplates = function(template_dir, callback){
+    petrify.loadTemplates = function(template_dir){
+        var emitter = new events.EventEmitter();
         test.equals(template_dir, options.template_dir);
         call_order.push('loadTemplates');
-        callback(null, 'templates');
+        process.nextTick(function(){
+            emitter.emit('finished', null, 'templates');
+        });
+        return emitter;
     };
     var loadViews_copy = petrify.loadViews;
-    petrify.loadViews = function(view_dir, callback){
+    petrify.loadViews = function(view_dir){
+        var emitter = new events.EventEmitter();
         test.equals(view_dir, options.view_dir);
         call_order.push('loadViews');
-        callback(null, 'views');
+        process.nextTick(function(){
+            emitter.emit('finished', null, 'views');
+        });
+        return emitter;
     };
     var loadData_copy = petrify.loadData;
-    petrify.loadData = function(data_dir, callback){
+    petrify.loadData = function(data_dir){
+        var emitter = new events.EventEmitter();
         test.equals(data_dir, options.data_dir);
         call_order.push('loadData');
-        callback(null, 'data');
+        process.nextTick(function(){
+            emitter.emit('finished', null, 'data');
+        });
+        return emitter;
     };
     var runViews_copy = petrify.runViews;
-    petrify.runViews = function(opts, callback){
+    petrify.runViews = function(opts){
+        var emitter = new events.EventEmitter();
         test.equals(opts.views, 'views');
         test.equals(opts.data, 'data');
         test.equals(opts.templates, 'templates');
         test.equals(opts.output_dir, options.output_dir);
         call_order.push('runViews');
-        callback();
+        process.nextTick(function(){
+            emitter.emit('finished', null, 'runViews');
+        });
+        return emitter;
     };
 
     var exec_copy = child_process.exec;
@@ -459,12 +472,13 @@ exports.testRun = function(test){
         child_process.exec = function(command, callback){
             call_order.push('mkdir');
             test.same(command, 'mkdir ' + options.output_dir);
-            callback();
+            callback(null, 'mkdir');
         };
-        callback();
+        callback(null, 'rm');
     };
 
-    petrify.run(options, function(err){
+    var runner = petrify.run(options);
+    runner.addListener('finished', function(err){
         // runViews should run last
         test.ok(call_order[call_order.length-1], 'runViews');
         petrify.loadTemplates = loadTemplates_copy;
