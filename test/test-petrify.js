@@ -320,6 +320,24 @@ exports.testEmit = function(test){
     });
 };
 
+exports.testEmitOutsideDir = function(test){
+    test.expect(1);
+    var writeFile_copy = fs.writeFile;
+    fs.writeFile = function(filename, data, callback){
+        test.ok(false, 'writeFile should not be called');
+        callback();
+    };
+    var output_dir = __dirname + '/fixtures/www';
+    petrify.emit(output_dir, '../testpath', 'some data', function(err){
+        test.ok(
+            err instanceof Error,
+            'emitting outside output dir should throw and error'
+        );
+        fs.writeFile = writeFile_copy;
+        test.done();
+    });
+};
+
 exports.testEmitNoLeadingSlash = function(test){
     test.expect(2);
     var writeFile_copy = fs.writeFile;
