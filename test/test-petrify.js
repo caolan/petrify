@@ -43,8 +43,13 @@ exports.testReadFileMarkdown = function(test){
 };
 
 exports.testLoadData = function(test){
-    test.expect(1);
+    test.expect(7);
     var loadData = petrify.loadData(__dirname + '/fixtures/data');
+    loadData.addListener('loaded', function(filename, completed, total){
+        test.ok(filename == 'file1.md' || filename == 'file2.md');
+        test.ok(typeof completed == 'number');
+        test.ok(typeof total == 'number');
+    });
     loadData.addListener('finished', function(err, data){
         data = data.sort(function(a,b){
             if(a.filename < b.filename){
@@ -89,6 +94,9 @@ exports.testLoadDataEmptyDir = function(test){
     ensureEmptyDir(function(err, emptydir){
         if(err) test.ok(false, err);
         var loadData = petrify.loadData(emptydir);
+        loadData.addListener('loaded', function(){
+            test.ok(false, 'loaded event should not be emitted');
+        });
         loadData.addListener('finished', function(err, data){
             test.same(data, []);
             test.done();
@@ -98,6 +106,9 @@ exports.testLoadDataEmptyDir = function(test){
 
 exports.testLoadViewsMissingPath = function(test){
     var loadViews = petrify.loadViews(__dirname + '/fixtures/blah');
+    loadViews.addListener('loaded', function(){
+        test.ok(false, 'loaded event should not be emitted');
+    });
     loadViews.addListener('finished', function(err, views){
         test.ok(err instanceof Error);
         test.done();
@@ -105,7 +116,11 @@ exports.testLoadViewsMissingPath = function(test){
 };
 
 exports.testLoadViews = function(test){
+    test.expect(3);
     var loadViews = petrify.loadViews(__dirname + '/fixtures/views');
+    loadViews.addListener('loaded', function(name, completed, total){
+        test.ok(name == 'view1' || name == 'view2');
+    });
     loadViews.addListener('finished', function(err, views){
         test.same(views, {
             view1: require(__dirname + '/fixtures/views/view1'),
@@ -120,6 +135,9 @@ exports.testLoadViewsEmptyDir = function(test){
     ensureEmptyDir(function(err, emptydir){
         if(err) test.ok(false, err);
         var loadViews = petrify.loadViews(emptydir);
+        loadViews.addListener('loaded', function(){
+            test.ok(false, 'loaded event should not be emitted');
+        });
         loadViews.addListener('finished', function(err, views){
             test.same(views, {});
             test.done();
@@ -137,7 +155,7 @@ exports.testRunViewsEmpty = function(test){
 };
 
 exports.testRunViewsSingle = function(test){
-    test.expect(5);
+    test.expect(7);
     var testdata = [{test: 'test'}];
     var views = {
         view1: {run: function(view, context){
@@ -154,6 +172,12 @@ exports.testRunViewsSingle = function(test){
         data: testdata,
         templates: {test:'templates'},
         output_dir: ''
+    });
+    runViews.addListener('view_started', function(name){
+        test.equals(name, 'view1');
+    });
+    runViews.addListener('view_done', function(name){
+        test.equals(name, 'view1');
     });
     runViews.addListener('finished', function(err){
         test.done();
@@ -207,7 +231,7 @@ exports.testRunViewsDependencies = function(test){
 };
 
 exports.testRunViewsEmit = function(test){
-    test.expect(3);
+    test.expect(5);
     var emit_copy = petrify.emit;
     petrify.emit = function(output_dir, path, data, callback){
         test.equals(output_dir, 'output_dir');
@@ -226,6 +250,10 @@ exports.testRunViewsEmit = function(test){
         data: [],
         templates: {},
         output_dir: 'output_dir'
+    });
+    runViews.addListener('emit', function(view, path){
+        test.equals(view, 'view1');
+        test.equals(path, '/somepath');
     });
     runViews.addListener('finished', function(err){
         petrify.emit = emit_copy;
@@ -263,7 +291,7 @@ exports.testRunViewsPartials = function(test){
     });
 };
 
-exports.testRunViewsCallbacks = function(test){
+exports.testRunViewsEvents = function(test){
     var calls = [];
     var testdata = [{test: 'test'}];
     var views = {
@@ -282,12 +310,12 @@ exports.testRunViewsCallbacks = function(test){
         data: testdata,
         templates: {},
         output_dir: '',
-        onViewStart: function(name){
-            calls.push(name + ' start');
-        },
-        onViewDone: function(name){
-            calls.push(name + ' done');
-        },
+    });
+    runViews.addListener('view_started', function(name){
+        calls.push(name + ' start');
+    });
+    runViews.addListener('view_done', function(name){
+        calls.push(name + ' done');
     });
     runViews.addListener('finished', function(err){
         test.same(calls, [
