@@ -564,3 +564,67 @@ exports.testRun = function(test){
         test.done();
     });
 };
+
+exports.testRunErrors = function(test){
+    test.expect(8);
+    var options = {
+        template_dir: 'template_dir',
+        output_dir: __dirname + '/fixtures/dir_exists',
+        view_dir: 'view_dir',
+        data_dir: 'data_dir'
+    };
+    var loadTemplates_copy = petrify.loadTemplates;
+    petrify.loadTemplates = function(template_dir){
+        var emitter = new events.EventEmitter();
+        process.nextTick(function(){
+            emitter.emit('error', 'templates_error', 'template');
+        });
+        return emitter;
+    };
+    var loadViews_copy = petrify.loadViews;
+    petrify.loadViews = function(view_dir){
+        var emitter = new events.EventEmitter();
+        process.nextTick(function(){
+            emitter.emit('error', 'loadViews_error', 'view');
+        });
+        return emitter;
+    };
+    var loadData_copy = petrify.loadData;
+    petrify.loadData = function(data_dir){
+        var emitter = new events.EventEmitter();
+        process.nextTick(function(){
+            emitter.emit('error', 'data_error', 'document');
+        });
+        return emitter;
+    };
+    var runViews_copy = petrify.runViews;
+    petrify.runViews = function(opts){
+        var emitter = new events.EventEmitter();
+        process.nextTick(function(){
+            emitter.emit('error', 'runViews_error', 'view');
+        });
+        return emitter;
+    };
+
+    var exec_copy = child_process.exec;
+    child_process.exec = function(command, callback){
+        callback();
+    };
+
+    var runner = petrify.run(options);
+    runner.templates.addListener('error', function(e, template){
+        test.equals(template, 'template');
+        test.equals(e, 'templates_error');
+    });
+    runner.views.addListener('error', function(e, view){
+        test.equals(view, 'view');
+        test.ok(e == 'loadViews_error' || e == 'runViews_error');
+    });
+    runner.data.addListener('error', function(e, doc){
+        test.equals(doc, 'document');
+        test.equals(e, 'data_error');
+    });
+    runner.addListener('finished', function(err){
+        test.done();
+    });
+};
