@@ -1,10 +1,10 @@
-var run = require('run');
+var director = require('director');
 
 
 exports.testRequires = function(test){
     var fn = function(){return 'test';};
     test.same(
-        run.requires(['task1','task2'], fn),
+        director.requires(['task1','task2'], fn),
         {requires: ['task1','task2'], run: fn}
     );
     test.done();
@@ -13,7 +13,7 @@ exports.testRequires = function(test){
 exports.testAuto = function(test){
     var callOrder = [];
     var testdata = [{test: 'test'}];
-    run.auto({
+    director.auto({
         task1: {
             requires: ['task2'],
             run: function(task){

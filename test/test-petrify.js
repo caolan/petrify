@@ -602,6 +602,7 @@ exports.testRunErrors = function(test){
         var emitter = new events.EventEmitter();
         process.nextTick(function(){
             emitter.emit('error', 'runViews_error', 'view');
+            emitter.emit('finished');
         });
         return emitter;
     };
