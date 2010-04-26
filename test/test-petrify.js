@@ -50,7 +50,7 @@ exports.testLoadData = function(test){
         test.ok(typeof completed == 'number');
         test.ok(typeof total == 'number');
     });
-    loadData.addListener('loaded', function(err, data){
+    loadData.addListener('loaded', function(data){
         data = data.sort(function(a,b){
             if(a.filename < b.filename){
                 return -1;
@@ -97,7 +97,7 @@ exports.testLoadDataEmptyDir = function(test){
         loadData.addListener('load', function(){
             test.ok(false, 'load event should not be emitted');
         });
-        loadData.addListener('loaded', function(err, data){
+        loadData.addListener('loaded', function(data){
             test.same(data, []);
             test.done();
         });
@@ -109,7 +109,7 @@ exports.testLoadViewsMissingPath = function(test){
     loadViews.addListener('load', function(){
         test.ok(false, 'load event should not be emitted');
     });
-    loadViews.addListener('loaded', function(err, views){
+    loadViews.addListener('error', function(err){
         test.ok(err instanceof Error);
         test.done();
     });
@@ -121,7 +121,7 @@ exports.testLoadViews = function(test){
     loadViews.addListener('load', function(name, completed, total){
         test.ok(name == 'view1' || name == 'view2');
     });
-    loadViews.addListener('loaded', function(err, views){
+    loadViews.addListener('loaded', function(views){
         test.same(views, {
             view1: require(__dirname + '/fixtures/views/view1'),
             view2: require(__dirname + '/fixtures/views/view2')
@@ -138,7 +138,7 @@ exports.testLoadViewsEmptyDir = function(test){
         loadViews.addListener('load', function(){
             test.ok(false, 'load event should not be emitted');
         });
-        loadViews.addListener('loaded', function(err, views){
+        loadViews.addListener('loaded', function(views){
             test.same(views, {});
             test.done();
         });
@@ -424,7 +424,7 @@ exports.testLoadTemplates = function(test){
     var template_dir = __dirname + '/fixtures/templates';
 
     var templates = petrify.loadTemplates(template_dir);
-    templates.addListener('loaded', function(err, templates){
+    templates.addListener('loaded', function(templates){
         test.equals(
             templates['testtemplate.jsont'].expand({name:'world'}),
             'Hello world!\n'
@@ -438,7 +438,7 @@ exports.testLoadTemplatesEmptyDir = function(test){
     ensureEmptyDir(function(err, emptydir){
         if(err) test.ok(false, err);
         var templates = petrify.loadTemplates(emptydir);
-        templates.addListener('loaded', function(err, templates){
+        templates.addListener('loaded', function(templates){
             test.same(templates, {});
             test.done();
         });
@@ -461,7 +461,7 @@ exports.testRun = function(test){
         call_order.push('loadTemplates');
         process.nextTick(function(){
             emitter.emit('load', 'template1', 1, 2);
-            emitter.emit('loaded', null, 'templates');
+            emitter.emit('loaded', 'templates');
         });
         return emitter;
     };
@@ -472,7 +472,7 @@ exports.testRun = function(test){
         call_order.push('loadViews');
         process.nextTick(function(){
             emitter.emit('load', 'view1', 1, 2);
-            emitter.emit('loaded', null, 'views');
+            emitter.emit('loaded', 'views');
         });
         return emitter;
     };
@@ -483,7 +483,7 @@ exports.testRun = function(test){
         call_order.push('loadData');
         process.nextTick(function(){
             emitter.emit('load', 'data1', 1, 2);
-            emitter.emit('loaded', null, 'data');
+            emitter.emit('loaded', 'data');
         });
         return emitter;
     };
@@ -522,7 +522,7 @@ exports.testRun = function(test){
         test.equals(complete, 1);
         test.equals(total, 2);
     });
-    runner.templates.addListener('loaded', function(err, templates){
+    runner.templates.addListener('loaded', function(templates){
         test.equals(templates, 'templates');
     });
     runner.views.addListener('load', function(filename, complete, total){
@@ -530,7 +530,7 @@ exports.testRun = function(test){
         test.equals(complete, 1);
         test.equals(total, 2);
     });
-    runner.views.addListener('loaded', function(err, views){
+    runner.views.addListener('loaded', function(views){
         test.equals(views, 'views');
     });
     runner.views.addListener('view_started', function(name){
@@ -550,7 +550,7 @@ exports.testRun = function(test){
         test.equals(complete, 1);
         test.equals(total, 2);
     });
-    runner.data.addListener('loaded', function(err, data){
+    runner.data.addListener('loaded', function(data){
         test.equals(data, 'data');
     });
     runner.addListener('finished', function(err){
