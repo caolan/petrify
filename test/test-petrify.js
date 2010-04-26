@@ -231,16 +231,18 @@ exports.testRunViewsDependencies = function(test){
 };
 
 exports.testRunViewsEmit = function(test){
-    test.expect(5);
+    test.expect(6);
     var emit_copy = petrify.emit;
+    var call_order = [];
     petrify.emit = function(output_dir, path, data, callback){
         test.equals(output_dir, 'output_dir');
         test.equals(path, '/somepath');
         test.equals(data, 'some data');
-        callback();
+        setTimeout(callback, 100);
     };
     var views = {
         view1: {run: function(view, context){
+            call_order.push('view1');
             view.emit('/somepath', 'some data');
             view.done();
         }}
@@ -252,10 +254,13 @@ exports.testRunViewsEmit = function(test){
         output_dir: 'output_dir'
     });
     runViews.addListener('emit', function(view, path){
+        call_order.push('emit');
         test.equals(view, 'view1');
         test.equals(path, '/somepath');
     });
     runViews.addListener('finished', function(err){
+        call_order.push('finished');
+        test.same(call_order, ['view1', 'emit', 'finished']);
         petrify.emit = emit_copy;
         test.done();
     });
@@ -441,7 +446,7 @@ exports.testLoadTemplatesEmptyDir = function(test){
 };
 
 exports.testRun = function(test){
-    test.expect(25);
+    test.expect(26);
     var call_order = [];
     var options = {
         template_dir: 'template_dir',
@@ -530,6 +535,9 @@ exports.testRun = function(test){
     });
     runner.views.addListener('view_started', function(name){
         test.equals(name, 'view1');
+    });
+    runner.views.addListener('emit', function(name){
+        test.equals(name, 'view1', 'path');
     });
     runner.views.addListener('view_done', function(name){
         test.equals(name, 'view1');
