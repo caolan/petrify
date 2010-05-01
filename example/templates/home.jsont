@@ -1,0 +1,18 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+    <head> 
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
+        <title>Petrify example site</title> 
+        <link rel="stylesheet" type="text/css" href="media/style.css" /> 
+    </head> 
+    <body> 
+        {partials.navigation}
+        <div class="container">
+            <h1>Petrify example site</h1>
+            {.repeated section articles}
+                <h2><a href="{url}">{heading}</a></h2>
+                {html_no_heading}
+            {.end}
+        </div>
+    </body>
+</html>

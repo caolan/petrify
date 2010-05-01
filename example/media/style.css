@@ -1,0 +1,52 @@
+body {
+    font-size: 16px;
+    line-height: 24px;
+    background: #f0f0f0;
+    color: #252525;
+    font-family: "Palatino Linotype", "Book Antiqua", Palatino, FreeSerif, serif;
+}
+div.container {
+    width: 550px;
+    margin: 50px 0 50px 200px;
+}
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 40px;
+}
+.tags {
+    font-weight: bold;
+}
+.tags ul {
+    font-weight: normal;
+    list-style-type: none;
+    display: inline;
+    margin: 0 0.5em;
+    padding: 0;
+}
+.tags ul li {
+    display: inline;
+}
+#nav {
+    border-right: solid #ccc 1px;
+    font-weight: bold;
+    float: left;
+    margin: 0 0 0 50px;
+    padding: 0;
+    width: 100px;
+    list-style-type: none;
+}
+#nav li {
+    margin: 0 0 1em 0;
+}
+#nav ul {
+    list-style-type: none;
+    padding: 0;
+}
+#nav ul li {
+    margin: 0;
+    font-weight: normal;
+}
+ul.articles {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}

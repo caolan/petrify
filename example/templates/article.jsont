@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+    <head> 
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
+        <title>{article.heading}</title>
+        <link rel="stylesheet" type="text/css" href="media/style.css" /> 
+    </head> 
+    <body> 
+        {partials.navigation}
+        <div class="container">
+            {.section article}
+                <h1>{heading}</h1>
+                <div class="tags">
+                    Tags: 
+                    <ul>
+                        {.repeated section tags}
+                        <li><a href="{@}.html">{@}</a></li>
+                        {.end}
+                    </ul>
+                </div>
+                {html_no_heading}
+            {.end}
+        </div>
+    </body>
+</html>

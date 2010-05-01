@@ -1,0 +1,21 @@
+<ul id="nav">
+    <li><a href="index.html">Home</a></li>
+    {.section years}
+    <li>Year
+        <ul>
+        {.repeated section @}
+        <li><a href="{@}.html">{@}</a></li>
+        {.end}
+        </ul>
+    </li>
+    {.end}
+    {.section tags}
+    <li>Tags
+        <ul>
+        {.repeated section @}
+            <li><a href="{@}.html">{@}</a></li>
+        {.end}
+        </ul>
+    </li>
+    {.end}
+</ul>
