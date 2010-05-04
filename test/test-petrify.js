@@ -507,13 +507,19 @@ exports.testRun = function(test){
 
     var exec_copy = child_process.exec;
     child_process.exec = function(command, callback){
-        test.same(command, 'rm -r ' + options.output_dir);
+        test.equals(command, 'rm -r ' + options.output_dir);
         child_process.exec = function(command, callback){
-            test.same(command, 'mkdir ' + options.output_dir);
+            test.equals(command, 'mkdir ' + options.output_dir);
             child_process.exec = function(command, callback){
-                test.same(command, 'cp -r ' + options.media_dirs[0]);
+                test.equals(
+                    command,
+                    'cp -r '+options.media_dirs[0]+' '+options.output_dir
+                );
                 child_process.exec = function(command, callback){
-                    test.same(command, 'cp -r ' + options.media_dirs[1]);
+                    test.equals(
+                        command,
+                        'cp -r '+options.media_dirs[1]+' '+options.output_dir
+                    );
                     process.nextTick(callback);
                 };
                 process.nextTick(callback);
