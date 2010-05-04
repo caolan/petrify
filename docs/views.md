@@ -1,4 +1,5 @@
-# Views
+Views
+=====
 
 Views are Javasript modules that export a run function:
 
@@ -11,14 +12,16 @@ the output directory and a context argument which contains the data and
 templates for the site. When a view is finished, it's important to call
 view.done() so petrify can run other views which may depend on the current one.
 You can declare if a view requires other views to be completed first by
-exporting a requirements property:
+exporting a requires property:
 
     exports.requires = ['navigation'];
 
 This is especially useful for things like navigation, which will need to be
-complete so it can be included on other templates.
+rendered so it can be included on other templates.
 
-## Context
+
+Context
+-------
 
 The context argument to a view's run function has the following properties:
 
@@ -33,7 +36,14 @@ The context argument to a view's run function has the following properties:
   use. This could contain the rendered HTML for a navigation menu, or an array
   of processed data for convenience.
 
-## View
+__Note:__ Context is passed to view functions as a reference, it is not copied
+for each view. This means any changes to the context object will affect other
+views. In the case of context.partials this is desired, in other cases it
+might not be!
+
+
+View
+----
 
 The view argument to a view's run function has the following methods:
 
@@ -43,3 +53,7 @@ The view argument to a view's run function has the following methods:
   views which may depend on the current one. This is done as a callback instead
   of just returning from the view function to allow you to call async functions
   within the view.
+
+__Note:__ When you call view.done(), the view does not actually complete until
+all view.emit() calls have completed writing to the filesystem (this is done
+async).
