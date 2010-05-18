@@ -10,3 +10,6 @@
 [submodule "deps/behaviours"]
 	path = deps/behaviours
 	url = git://github.com/caolan/behaviors.git
+[submodule "deps/async"]
+	path = deps/async
+	url = git@caolanmcmahon.com:caolan/async.git
