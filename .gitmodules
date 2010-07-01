@@ -12,4 +12,4 @@
 	url = git://github.com/caolan/behaviors.git
 [submodule "deps/async"]
 	path = deps/async
-	url = git@caolanmcmahon.com:caolan/async.git
+	url = git://github.com/caolan/async.git
