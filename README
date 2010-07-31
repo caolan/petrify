@@ -17,7 +17,7 @@ _A simple and flexible static site generator_
   automatically on commit if you like... or, like me, you can have the server
   rebuild the site automatically when you push to it.
 * __You no longer need to serve your own dynamic content__ - Lots of content you
-  would normally want a database for can now be included using Javascript. You
+  would normally want a database for can now be included using JavaScript. You
   can add comments via [Disqus](http://disqus.com), you can embed calendars from
   [Google Calendar](http://calendar.google.com)... Many of these problems have
   already been solved. better. ;)
@@ -29,10 +29,10 @@ _A simple and flexible static site generator_
   be used for a wide range of sites, from project documentation to event
   listings. This is achieved through allowing you to parse the content data in
   whichever way you like.
-* __Write your views in Javascript__ - Petrify uses Javascript for parsing
-  content. Javascript is a widely used langauge, and if you know enough about
+* __Write your views in JavaScript__ - Petrify uses JavaScript for parsing
+  content. JavaScript is a widely used language, and if you know enough about
   HTML to want to use a static site generator, you probably know enough
-  Javascript to use Petrify.
+  JavaScript to use Petrify.
 * __Write your content in Markdown__ -
   [Markdown](http://daringfireball.net/projects/markdown/) is an easy to write,
   easy to read markup language inspired by the way people write in plain text
