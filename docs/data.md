@@ -57,3 +57,4 @@ object has the following properties:
   the page title etc.
 * __html_no_heading:__ The HTML representation of the Markdown data with the
   first level-1 (H1) heading removed.
+* __first_paragraph:__ The HTML representation of the first paragraph.

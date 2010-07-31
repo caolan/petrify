@@ -21,7 +21,7 @@ var ensureEmptyDir = function(callback){
 };
 
 exports.testReadFileMarkdown = function(test){
-    test.expect(6);
+    test.expect(7);
     var filename = __dirname + '/fixtures/data/file1.md';
     var data = 'key1: value1\nkey2: value2\n\n# Test\n\n* one\n* two';
     var r = petrify.readFile(filename, data);
@@ -33,12 +33,19 @@ exports.testReadFileMarkdown = function(test){
         ["bulletlist",["listitem", "one"],["listitem","two"]]
     ]);
     test.equals(r.heading, 'Test');
-    test.equals(
-        r.html, '<h1>Test</h1>\n\n<ul><li>one</li><li>two</li></ul>'
-    );
-    test.equals(
-        r.html_no_heading, '<ul><li>one</li><li>two</li></ul>'
-    );
+    test.equals(r.html, '<h1>Test</h1>\n\n<ul><li>one</li><li>two</li></ul>');
+    test.equals(r.html_no_heading, '<ul><li>one</li><li>two</li></ul>');
+    test.equals(r.first_paragraph, '');
+    test.done();
+};
+
+exports.testReadFirstParagraph = function(test){
+    test.expect(1);
+    var filename = __dirname + '/fixtures/data/file1.md';
+    var data = 'key1: value1\nkey2: value2\n\n' +
+        '# Test\n\nfirst paragraph\n\nsecond paragraph';
+    var r = petrify.readFile(filename, data);
+    test.equals(r.first_paragraph, '<p>first paragraph</p>');
     test.done();
 };
 
@@ -71,7 +78,8 @@ exports.testLoadData = function(test){
                 ],
                 heading: 'Test',
                 html:'<h1>Test</h1>\n\n<ul><li>one</li><li>two</li></ul>',
-                html_no_heading:'<ul><li>one</li><li>two</li></ul>'
+                html_no_heading:'<ul><li>one</li><li>two</li></ul>',
+                first_paragraph:''
             },
             {
                 filename:'file2.md',
@@ -82,7 +90,8 @@ exports.testLoadData = function(test){
                 ],
                 heading: 'Test 2',
                 html:'<h1>Test 2</h1>',
-                html_no_heading:''
+                html_no_heading:'',
+                first_paragraph: ''
             }
         ]);
         test.done();
