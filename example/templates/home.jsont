@@ -11,7 +11,7 @@
             <h1>Petrify example site</h1>
             {.repeated section articles}
                 <h2><a href="{url}">{heading}</a></h2>
-                {html_no_heading}
+                {first_paragraph}
             {.end}
         </div>
     </body>
