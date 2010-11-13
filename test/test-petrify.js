@@ -1,5 +1,5 @@
-var petrify = require('petrify'),
-    jsontemplate = require('json-template'),
+var petrify = require('../lib/petrify'),
+    jsontemplate = require('../deps/json-template/lib/json-template'),
     child_process = require('child_process'),
     events = require('events'),
     path = require('path'),
