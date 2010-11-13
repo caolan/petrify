@@ -13,3 +13,6 @@
 [submodule "deps/async"]
 	path = deps/async
 	url = git://github.com/caolan/async.git
+[submodule "deps/wmd"]
+	path = deps/wmd
+	url = git://github.com/caolan/wmd.git

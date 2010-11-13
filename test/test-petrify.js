@@ -21,21 +21,16 @@ var ensureEmptyDir = function(callback){
 };
 
 exports.testReadFileMarkdown = function(test){
-    test.expect(7);
+    test.expect(6);
     var filename = __dirname + '/fixtures/data/file1.md';
     var data = 'key1: value1\nkey2: value2\n\n# Test\n\n* one\n* two';
     var r = petrify.readFile(filename, data);
     test.equals(r.filename, 'file1.md');
-    test.same(r.meta, {key1: 'value1', key2: 'value2'});
-    test.same(r.jsonml, ["markdown",
-        {"key1":"value1","key2":"value2"},
-        ["header",{"level":1},"Test"],
-        ["bulletlist",["listitem", "one"],["listitem","two"]]
-    ]);
+    test.same(r.metadata, {key1: 'value1', key2: 'value2'});
     test.equals(r.heading, 'Test');
-    test.equals(r.html, '<h1>Test</h1>\n\n<ul><li>one</li><li>two</li></ul>');
-    test.equals(r.html_no_heading, '<ul><li>one</li><li>two</li></ul>');
-    test.equals(r.first_paragraph, '');
+    test.equals(r.html, '<h1>Test</h1>\n\n<ul>\n<li>one</li>\n<li>two</li>\n</ul>');
+    test.equals(r.html_no_heading, '\n\n<ul>\n<li>one</li>\n<li>two</li>\n</ul>');
+    test.equals(r.first_paragraph, null);
     test.done();
 };
 
@@ -45,12 +40,12 @@ exports.testReadFirstParagraph = function(test){
     var data = 'key1: value1\nkey2: value2\n\n' +
         '# Test\n\nfirst paragraph\n\nsecond paragraph';
     var r = petrify.readFile(filename, data);
-    test.equals(r.first_paragraph, '<p>first paragraph</p>');
+    test.equals(r.first_paragraph, 'first paragraph');
     test.done();
 };
 
 exports.testLoadData = function(test){
-    test.expect(7);
+    test.expect(18);
     var loadData = petrify.loadData(__dirname + '/fixtures/data');
     loadData.addListener('load', function(filename, completed, total){
         test.ok(filename == 'file1.md' || filename == 'file2.md');
@@ -67,33 +62,29 @@ exports.testLoadData = function(test){
             }
             return 0;
         });
-        test.same(data, [
-            {
-                filename: 'file1.md',
-                meta: {key1:'value1', key2:'value2'},
-                jsonml: ["markdown",
-                    {"key1":"value1","key2":"value2"},
-                    ["header",{"level":1},"Test"],
-                    ["bulletlist",["listitem", "one"],["listitem","two"]]
-                ],
-                heading: 'Test',
-                html:'<h1>Test</h1>\n\n<ul><li>one</li><li>two</li></ul>',
-                html_no_heading:'<ul><li>one</li><li>two</li></ul>',
-                first_paragraph:''
-            },
-            {
-                filename:'file2.md',
-                meta: {key:'value'},
-                jsonml: ["markdown",
-                    {"key":"value"},
-                    ["header",{"level":1},"Test 2"]
-                ],
-                heading: 'Test 2',
-                html:'<h1>Test 2</h1>',
-                html_no_heading:'',
-                first_paragraph: ''
-            }
-        ]);
+
+        // file1.md
+        test.equal(data[0].filename, 'file1.md');
+        test.same(data[0].metadata, {key1:'value1',key2:'value2'});
+        test.equal(data[0].heading, 'Test');
+        test.equal(data[0].first_paragraph, null);
+        test.equal(
+            data[0].html,
+            '<h1>Test</h1>\n\n<ul>\n<li>one</li>\n<li>two</li>\n</ul>'
+        );
+        test.equal(
+            data[0].html_no_heading,
+            '\n\n<ul>\n<li>one</li>\n<li>two</li>\n</ul>'
+        );
+
+        // file2.md
+        test.equal(data[1].filename, 'file2.md');
+        test.same(data[1].metadata, {key:'value'});
+        test.equal(data[1].heading, 'Test 2');
+        test.equal(data[1].first_paragraph, null);
+        test.equal(data[1].html, '<h1>Test 2</h1>');
+        test.equal(data[1].html_no_heading, '');
+
         test.done();
     });
 };
