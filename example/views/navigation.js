@@ -12,12 +12,12 @@ exports.run = function(view, context){
 
     // extract a unique list of 4-digit years from the data
     partials.years = unique(context.data.map(function(d){
-        return new Date(d.meta.date).getFullYear();
+        return new Date(d.metadata.date).getFullYear();
     }));
 
     // extract a unique list of tags from the data
     partials.tags = unique(context.data.reduce(function(a, d){
-        return a.concat(d.meta.tags.split(', '));
+        return a.concat(d.metadata.tags.split(', '));
     }, []));
 
     // render the naviagtion template and store in context.partials for later
