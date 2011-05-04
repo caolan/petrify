@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" media="screen" href="/media/style.css"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:georss="http://www.georss.org/georss" xmlns:thr="http://purl.org/syndication/thread/1.0" xmlns:feedburner="http://rssnamespace.org/feedburner/ext/1.0" >
+<id></id>
+<updated>{updated}</updated>
+<title type="text">Blog Title Here</title>
+<subtitle type="html">Blog Subtitle Here</subtitle>
+<link href="http://YOUR-DOMAIN/atom.xml" rel="self" />
+<link href="http://YOUR-DOMAIN" />
+<author>
+  <name>Your Name Here</name>
+  <email>Your Email Here</email>
+</author>
+
+{.repeated section articles_xml}
+  {@}
+{.end}
+
+</feed>
