@@ -10,6 +10,13 @@
         <div class="container">
             {.section article}
                 <h1>{heading}</h1>
+		<div class="articleDate">
+		  <b>
+                    {weekday},
+                    {month} {day},
+                    {year}
+		  </b>
+		</div>
                 <div class="tags">
                     Tags: 
                     <ul>

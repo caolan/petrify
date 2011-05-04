@@ -4,6 +4,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
         <title>Petrify example site</title> 
         <link rel="stylesheet" type="text/css" href="media/style.css" /> 
+	<link href="atom.xml" type="application/atom+xml" rel="alternate" title="Petrify Example Site" />
     </head> 
     <body> 
         {partials.navigation}
@@ -11,8 +12,16 @@
             <h1>Petrify example site</h1>
             {.repeated section articles}
                 <h2><a href="{url}">{heading}</a></h2>
+		<div class="articleDate">
+		  <b>
+		    {weekday}, 
+		    {month} {day}, 
+		    {year}
+		  </b>
+		</div>
                 {first_paragraph}
             {.end}
         </div>
     </body>
 </html>
+
