@@ -1,4 +1,4 @@
-#!/usr/local/bin/node
+#!/usr/bin/env node
 
 require.paths.push(__dirname);
 require.paths.push(__dirname + '/../lib');
