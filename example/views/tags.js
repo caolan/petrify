@@ -23,4 +23,5 @@ exports.run = function(view, context){
 
     });
 
+    view.done();
 };
