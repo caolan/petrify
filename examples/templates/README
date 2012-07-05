@@ -1,0 +1,6 @@
+Shows how to render handlebars templates as HTML in order to generate a very
+basic static site. Also demonstrates including specific directories (css, js,
+img) in the build.
+
+The copying of static assets and the loading/rendering of templates are split
+into two builds, the 'all' build runs the both in parallel to speed up build time.

@@ -1,0 +1,8 @@
+An example project demonstrating the views rendering system and data loading.
+This can be used to generate any number of pages from markdown or json data.
+
+With this set up, you can just add a new markdown file to the data
+directory and run "tea build" to add new blog posts to the example site.
+
+Notice that one of the views uses a module from NPM (underscore), installed
+to the node_modules directory. Views are just regular Node.js modules.

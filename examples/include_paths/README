@@ -1,0 +1,2 @@
+An example project using the "include" task to copy static assets to the build's
+destination directory.
