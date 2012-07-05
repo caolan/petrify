@@ -1,0 +1,10 @@
+{
+    "name": "petrify",
+    "version": "0.2.0",
+    "description": "A flexible static site generator for node.js",
+    "dependencies": {
+        "async": "0.1.22",
+        "wmd": "0.2.0",
+        "handlebars": "1.0.5beta"
+    }
+}

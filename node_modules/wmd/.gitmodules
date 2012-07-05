@@ -1,0 +1,6 @@
+[submodule "deps/jsdom"]
+	path = deps/jsdom
+	url = git://github.com/tmpvar/jsdom.git
+[submodule "deps/node-htmlparser"]
+	path = deps/node-htmlparser
+	url = git://github.com/tautologistics/node-htmlparser.git

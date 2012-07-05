@@ -1,5 +1,4 @@
 var petrify = require('../lib/petrify'),
-    jsontemplate = require('../deps/json-template/lib/json-template'),
     child_process = require('child_process'),
     events = require('events'),
     path = require('path'),
@@ -8,7 +7,7 @@ var petrify = require('../lib/petrify'),
 
 var ensureEmptyDir = function(callback){
     var dirpath = __dirname + '/fixtures/empty_dir';
-    path.exists(dirpath, function(exists){
+    fs.exists(dirpath, function(exists){
         if(!exists){
             fs.mkdir(dirpath, 0755, function(err){
                 callback(err, dirpath);
@@ -426,7 +425,7 @@ exports.testLoadTemplates = function(test){
     var templates = petrify.loadTemplates(template_dir);
     templates.addListener('loaded', function(templates){
         test.equals(
-            templates['testtemplate.jsont'].expand({name:'world'}),
+            templates['testtemplate.html']({name:'world'}),
             'Hello world!\n'
         );
         test.done();
