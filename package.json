@@ -12,7 +12,8 @@
         "handlebars": "1.0.5beta",
         "minimatch": "0.2.5",
         "ncp": "0.2.6",
-        "watch": "0.5.1"
+        "watch": "0.5.1",
+        "ecstatic": "0.1.6"
     },
     "bin": {
         "tea": "./bin/tea.js"
