@@ -1,9 +1,16 @@
 exports.tasks = {
-    'hello': './tasks/hello'
+    'blogposts': './tasks/blogposts',
+    'home': './tasks/home'
 };
 
 exports.builds = {
-    all: {
-        'hello': {name: 'World'}
-    }
+    load: {
+        "@data-load": {path: "data"},
+        "@handlebars-load": {path: "templates"}
+    },
+    render: {
+        '@blogposts': null,
+        '@home': null
+    },
+    all: ['load', 'render']
 };
