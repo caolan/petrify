@@ -11,7 +11,8 @@
         "js-yaml": "1.0.0",
         "handlebars": "1.0.5beta",
         "minimatch": "0.2.5",
-        "ncp": "0.2.6"
+        "ncp": "0.2.6",
+        "watch": "0.5.1"
     },
     "bin": {
         "tea": "./bin/tea.js"
