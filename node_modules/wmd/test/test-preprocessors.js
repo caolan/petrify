@@ -1,6 +1,7 @@
 var wmd = require('../lib/wmd'),
     underscores = wmd.preprocessors.underscores,
-    metadata = wmd.preprocessors.metadata;
+    metadata = wmd.preprocessors.metadata,
+    yamlFrontMatter = wmd.preprocessors.yamlFrontMatter;
 
 
 var mkTest = function (test, fn) {
@@ -75,6 +76,58 @@ exports['metadata'] = function (test) {
             metadata: {
                 prop1: 'value with spaces',
                 prop_two: 'value2\ndouble-line'
+            }
+        }
+    );
+    test.done();
+};
+
+
+
+
+exports['yamlFrontMatter'] = function (test) {
+    test.same(
+        yamlFrontMatter({
+            markdown: '---\n' +
+                      'property: value\n' +
+                      '---'
+        }),
+        {
+            markdown: '',
+            metadata: {property: 'value'}
+        }
+    );
+    test.same(
+        yamlFrontMatter({
+            markdown: '---\n' +
+                      'prop1: value1\n' +
+                      'prop_two: 2\n' +
+                      '---\n' +
+                      '\n' +
+                      'markdown'
+        }),
+        {
+            markdown: 'markdown',
+            metadata: {prop1: 'value1', prop_two: 2}
+        }
+    );
+    test.same(
+        yamlFrontMatter({
+            markdown: '---\n' +
+                      'prop1: value with spaces\n' +
+                      'list:\n' +
+                      '    - item1\n' +
+                      '    - item2\n' +
+                      '---\n' +
+                      '\n' +
+                      '\n' +
+                      '# markdown'
+        }),
+        {
+            markdown: '# markdown',
+            metadata: {
+                prop1: 'value with spaces',
+                list: ['item1', 'item2']
             }
         }
     );

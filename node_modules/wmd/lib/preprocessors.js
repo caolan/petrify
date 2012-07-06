@@ -1,4 +1,7 @@
-var gsub = require('./utils').gsub;
+var gsub = require('./utils').gsub,
+    yaml = require('js-yaml'),
+    _ = require('underscore');
+
 
 // github-flavored-markdown underscore changes
 
@@ -54,5 +57,20 @@ exports.metadata = function (doc) {
         }
     }
     doc.markdown = lines.join('\n');
+    return doc;
+};
+
+
+/**
+ * Parses Jekyll-style YAML front matter (similar to metadata parser above)
+ */
+
+exports.yamlFrontMatter = function (doc) {
+    var m = /^---\n([\s\S]*)---\n*/.exec(doc.markdown);
+    if (m) {
+        doc.metadata = {};
+        doc.metadata = _.extend(doc.metadata, yaml.load(m[1]));
+        doc.markdown = doc.markdown.substr(m[0].length);
+    }
     return doc;
 };

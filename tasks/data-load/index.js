@@ -70,7 +70,7 @@ exports.loadFile = function (filename, data) {
     if (ext === '.md' || ext === '.markdown') {
         var r = wmd(data, {
             preprocessors: [
-                wmd.preprocessors.metadata,
+                wmd.preprocessors.yamlFrontMatter,
                 wmd.preprocessors.underscores
             ]
         });

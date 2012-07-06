@@ -1,7 +1,9 @@
+---
 type: blogpost
 slug: blogpost-two
-pubdate: Thu Jul 05 2012 10:15:30 GMT-0700 (PDT)
+pubdate: !!timestamp 2012-07-05T10:15:30Z
 title: Blogpost Two
+---
 
 
 ## Sub-heading one
