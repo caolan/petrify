@@ -78,7 +78,7 @@ module.exports = function (tea, context, config, callback) {
         if (!context.handlebars[name]) {
             throw new Error('Template Not Found: ' + name);
         }
-        return context.handlebars[name](this, {});
+        return context.handlebars[name](this, this);
     });
 
 
