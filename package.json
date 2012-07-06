@@ -1,6 +1,6 @@
 {
     "name": "teajs",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "JavaScript build tool and static site generator",
     "dependencies": {
         "async": "0.1.22",
