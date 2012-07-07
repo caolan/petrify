@@ -1,7 +1,8 @@
 var wmd = require('../lib/wmd'),
     underscores = wmd.preprocessors.underscores,
     metadata = wmd.preprocessors.metadata,
-    yamlFrontMatter = wmd.preprocessors.yamlFrontMatter;
+    yamlFrontMatter = wmd.preprocessors.yamlFrontMatter,
+    fencedCodeBlocks = wmd.preprocessors.fencedCodeBlocks;
 
 
 var mkTest = function (test, fn) {
@@ -129,6 +130,28 @@ exports['yamlFrontMatter'] = function (test) {
                 prop1: 'value with spaces',
                 list: ['item1', 'item2']
             }
+        }
+    );
+    test.done();
+};
+
+
+exports['fencedCodeBlocks'] = function (test) {
+    test.same(
+        fencedCodeBlocks({
+            markdown: 'foo\n\n```testlang\nbar\n```\n'
+        }),
+        {
+            markdown: 'foo\n\n<pre><code class="testlang">bar\n</code></pre>\n'
+        }
+    );
+    test.same(
+        fencedCodeBlocks({
+            markdown: 'foo\n\n```\nbar\n    baz\n```\n'
+        }),
+        {
+            markdown: 'foo\n\n<pre><code class="no-highlight">' +
+                'bar\n    baz\n</code></pre>\n'
         }
     );
     test.done();

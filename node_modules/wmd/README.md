@@ -48,6 +48,8 @@ An object containing core preprocessor functions:
 
 * __underscores__ - code-friendly underscore processing taken from GitHub
   Flavored Markdown. This means the bar in foo\_bar\_baz does not get emphasis.
+* __fencedCodeBlocks__ - GitHub style fenced code blocks
+* __yamlFrontMatter__ - Jekyll style YAML front matter for metadata
 * __metadata__ - takes metatdata information from the top of a markdown file
   and adds it to doc.metadata.
 

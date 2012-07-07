@@ -74,3 +74,30 @@ exports.yamlFrontMatter = function (doc) {
     }
     return doc;
 };
+
+
+/**
+ * Process GitHub style fenced code blocks
+ */
+
+exports.fencedCodeBlocks = function (doc) {
+    var re1 = /```([A-Za-z]+)\s*([\s\S]+?)```/; // with syntax highlighting
+    var re2 = /```\s*([\s\S]+?)```/; // without syntax highlighting
+    var block;
+    while (block = re1.exec(doc.markdown) || re2.exec(doc.markdown)) {
+        var pre;
+        if (block.length === 3) {
+            // we have a code format
+            pre = '<pre><code class="' + block[1] + '">' +
+                block[2] + '</code></pre>';
+        }
+        else {
+            // no syntax highlighting
+            pre = '<pre><code class="no-highlight">' +
+                block[1] + '</code></pre>';
+        }
+        doc.markdown = doc.markdown.substr(0, block.index) +
+            pre + doc.markdown.substr(block.index + block[0].length);
+    }
+    return doc;
+};

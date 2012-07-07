@@ -71,6 +71,7 @@ exports.loadFile = function (filename, data) {
         var r = wmd(data, {
             preprocessors: [
                 wmd.preprocessors.yamlFrontMatter,
+                wmd.preprocessors.fencedCodeBlocks,
                 wmd.preprocessors.underscores
             ]
         });
