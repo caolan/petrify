@@ -75,6 +75,19 @@ exports.yamlFrontMatter = function (doc) {
     return doc;
 };
 
+/**
+ * Used to escape HTML inside fenced code blocks
+ */
+
+function escapeHtml(s) {
+    s = ('' + s); /* Coerce to string */
+    s = s.replace(/&/g, '&amp;');
+    s = s.replace(/</g, '&lt;');
+    s = s.replace(/>/g, '&gt;');
+    s = s.replace(/"/g, '&quot;');
+    s = s.replace(/'/g, '&#39;');
+    return s;
+};
 
 /**
  * Process GitHub style fenced code blocks
@@ -88,13 +101,13 @@ exports.fencedCodeBlocks = function (doc) {
         var pre;
         if (block.length === 3) {
             // we have a code format
-            pre = '<pre><code class="' + block[1] + '">' +
-                block[2] + '</code></pre>';
+            pre = '<pre><code class="' + escapeHtml(block[1]) + '">' +
+                escapeHtml(block[2]) + '</code></pre>';
         }
         else {
             // no syntax highlighting
             pre = '<pre><code class="no-highlight">' +
-                block[1] + '</code></pre>';
+                escapeHtml(block[1]) + '</code></pre>';
         }
         doc.markdown = doc.markdown.substr(0, block.index) +
             pre + doc.markdown.substr(block.index + block[0].length);
