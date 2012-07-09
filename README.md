@@ -14,11 +14,7 @@ project off the ground and cover the basics.
 * [Commands](#commands)
 * [Tea.js](#tea.js)
 * [Tasks](#tasks)
-* [Built-in tasks](#built-in_tasks)
-  * [include](#include) - copies files and directories to build directory
-  * [data-load](#data-load) - loads markdown, json and yaml files into
-  * [handlebars-load](#handlebars-load) - read and compile handlebars
-    templates
+* [Built-in tasks](#built-in-tasks)
 
 
 <a id="installation" />
@@ -200,12 +196,17 @@ The task function accepts four arguments:
   error as the first argument to indicate a task failure.
 
 
-<a id="built-in_tasks" />
+<a id="built-in-tasks" />
 ## Built-in Tasks
 
 To help you get started with a static site, a number of useful task modules
 have been included. You can use these without defining them in the "tasks"
 property in `tea.js`.
+
+* [include](#include) - copies files and directories to build directory
+* [data-load](#data-load) - loads markdown, json and yaml files into
+* [handlebars-load](#handlebars-load) - read and compile handlebars
+  templates
 
 
 <a id="include" />
