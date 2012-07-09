@@ -10,14 +10,14 @@ project off the ground and cover the basics.
 
 ## Docs
 
-* [Installation][#installation]
-* [Commands][#commands]
-* [Tea.js][#tea.js]
-* [Tasks][#tasks]
-* [Built-in tasks][#built-in_tasks]
-  * [include][#include] - copies files and directories to build directory
-  * [data-load][#data-load] - loads markdown, json and yaml files into
-  * [handlebars-load][#handlebars-load] - read and compile handlebars
+* [Installation](#installation)
+* [Commands](#commands)
+* [Tea.js](#tea.js)
+* [Tasks](#tasks)
+* [Built-in tasks](#built-in_tasks)
+  * [include](#include) - copies files and directories to build directory
+  * [data-load](#data-load) - loads markdown, json and yaml files into
+  * [handlebars-load](#handlebars-load) - read and compile handlebars
     templates
 
 
@@ -51,7 +51,7 @@ multiple builds, meaning you can have different rules for development,
 production and testing. You could also create different 'flavours' of your
 project by including or excluding various components in alternate builds.
 
-This file is a [Node.js][http://nodejs.org] module.
+This file is a [Node.js](http://nodejs.org) module.
 
 ```javascript
 exports.tasks = {
