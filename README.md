@@ -12,7 +12,7 @@ project off the ground and cover the basics.
 
 * [Installation](#installation)
 * [Commands](#commands)
-* [Tea.js](#tea.js)
+* [Tea.js](#teajs)
 * [Tasks](#tasks)
 * [Built-in tasks](#built-in-tasks)
 
@@ -39,7 +39,7 @@ Use `tea -h` to see usage info on commands, but here's a brief overview:
 * __-o OUTPUT_DIR__ - override the output directory, defaults to
   `./build/TARGET`
 
-<a id="tea.js" />
+<a id="teajs" />
 ## Tea.js
 
 The `tea.js` file tells Tea how to build your project. You can define
