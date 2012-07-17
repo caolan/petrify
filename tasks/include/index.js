@@ -8,19 +8,37 @@ var ncp = require('ncp').ncp,
 module.exports = function (tea, context, config, callback) {
     var paths = config.paths || [];
 
-    async.forEach(paths, function (source, cb) {
-        var dest = path.resolve(tea.target, source);
-        pathExists(path.resolve(source), function (exists) {
-            if (!exists) {
-                return cb(path.resolve(source) + ' does not exist');
+    if (Array.isArray(paths)) {
+        async.forEach(paths, function (p, cb) {
+            var dest = path.resolve(tea.target, p);
+            var source = path.resolve(tea.source, p);
+            exports.includePath(path.resolve(source), dest, cb);
+        },
+        callback);
+    }
+    else if (typeof paths === 'object') {
+        async.forEach(Object.keys(paths), function (k, cb) {
+            var dest = path.resolve(tea.target, k);
+            var source = path.resolve(tea.source, paths[k]);
+            exports.includePath(path.resolve(source), dest, cb);
+        },
+        callback);
+    }
+    else {
+        return callback('Unexpected type for paths config option: ' + paths);
+    }
+};
+
+exports.includePath = function (source, dest, callback) {
+    pathExists(source, function (exists) {
+        if (!exists) {
+            return callback(source + ' does not exist');
+        }
+        mkdirp(path.dirname(dest), function (err) {
+            if (err) {
+                return callback(err);
             }
-            mkdirp(path.dirname(dest), function (err) {
-                if (err) {
-                    return cb(err);
-                }
-                ncp(path.resolve(source), dest, cb);
-            });
+            ncp(source, dest, callback);
         });
-    },
-    callback);
+    });
 };
