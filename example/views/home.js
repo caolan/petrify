@@ -43,4 +43,5 @@ exports.run = function(view, context){
     view.emit('index.html', html);
     view.emit('atom.xml', feed_xml);
 
+    view.done();
 };
